@@ -115,6 +115,28 @@
          (wordp x alphabet)))
   :enable wordp)
 
+(defrule wordp-append
+  (equal
+    (wordp (append x y) alphabet)
+    (and (wordp (list-fix x) alphabet)
+         (wordp y alphabet)))
+  :enable wordp
+  :induct (len x))
+
+(defruled wordp-repeat
+  (wordp (repeat n a) (list a))
+  :enable repeat
+  :induct (dec-induct n))
+
+(defrule wordp-repeat2
+  (implies
+    (and
+      (member a alphabet)
+      (true-listp alphabet))
+    (wordp (repeat n a) alphabet))
+  :enable repeat
+  :induct (dec-induct n))
+
 (defrule wordp-take
   (implies
     (and
@@ -130,6 +152,15 @@
     (wordp (nthcdr n x) alphabet))
   :enable (wordp nthcdr)
   :induct (cdr-dec-induct x n))
+
+(defrule |not sublistp cons|
+  (implies
+    (and
+      (wordp x alphabet)
+      (not (member a alphabet)))
+    (not (sublistp (cons a y) x)))
+  :enable wordp
+  :induct (len x))
 
 (defrule listpos-append-wordp
   (implies
@@ -151,6 +182,15 @@
     (equal (sublistp pat (append x y))
            (sublistp pat y)))
   :induct (len x))
+
+(defrule sublistp-append-repeat
+  (implies
+    (not (eql (car pat) a))
+    (equal (sublistp pat (append (repeat n a) y))
+           (sublistp pat y)))
+  :use (:instance sublistp-append-wordp
+         (alphabet (list a))
+         (x (repeat n a))))
 
 (defund mks-> (l r)
   (declare (xargs :guard (and (stringp l) (stringp r))))
