@@ -3,6 +3,14 @@
 (include-book "std/util/defrule" :dir :system)
 (local (include-book "std/basic/inductions" :dir :system))
 
+;; This is a theroem from ACL 7.1 which is absent from current distribution of acl2s
+(defthm cdr-of-append-when-consp
+; We enable the version that requires consp, because it's less likely we want
+; to unconditionally open-up (cdr (append ...)) unless we know ... is a consp.
+    (implies (consp x)
+             (equal (cdr (append x y))
+                    (append (cdr x) y))))
+
 (defrule |sublistp when listpos|
   (implies (listpos x y) (sublistp x y)))
 
@@ -341,9 +349,7 @@
       :induct (len pat))
     (defrule lemma2
       (implies
-        (and
-          (prefixp pat (append lw pat rw))
-        )
+        (prefixp pat (append lw pat rw))
         (prefixp pat (append lw pat)))
       :enable prefixp-append))
   :enable (|left-wingp as left-wingp1| left-wingp1 left-wing right-wing)
