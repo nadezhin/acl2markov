@@ -9,7 +9,7 @@
 
 (defrule |word-01-p is true-listp|
   (implies (word-01-p x) (true-listp x))
-  :enable word-01-p) 
+  :enable word-01-p)
 
 (defruled |nth word-01-p is member|
   (implies
@@ -56,7 +56,7 @@
 
 (defrule |word-0bar-p is true-listp|
   (implies (word-0bar-p x) (true-listp x))
-  :enable word-0bar-p) 
+  :enable word-0bar-p)
 
 (defruled |nth word-0bar-p is member|
   (implies
@@ -170,7 +170,7 @@
          (pat '(#\1))
          (x (replace-ones (take n inp)))
          (alphabet '(#\0 #\|))
-         (y (nthcdr n inp)))) 
+         (y (nthcdr n inp))))
 
 (defruled |step1 substp when #\1|
   (implies
@@ -218,7 +218,7 @@
       (< n (len inp)))
     (simple-steps
       *scheme-bin2unary-ru*
-      (if (eql (nth n inp) #\1) 1 0) 
+      (if (eql (nth n inp) #\1) 1 0)
       (step1 inp n)
       (step1 inp (1+ n))))
   :enable |step1 correct when #\1|
@@ -328,7 +328,7 @@
         (append (repeat n #\0) (repeat i #\|) (cons #\0 y)))
       (mks-> "|0" "0||")))
   :prep-lemmas (
-    (defrule lemma1 
+    (defrule lemma1
       (implies
         (and (natp n)
              (posp i)
@@ -419,7 +419,7 @@
   :enable (simple-stepp |step2 applicable|)
   :use |step2 substp|)
 
-(defruled |step2 correct a| 
+(defruled |step2 correct a|
   (implies
     (and
       (natp n)
@@ -493,7 +493,7 @@
         (:instance |nth word-01-p is member|
           (i n))))
 
-(defruled |step2 correct q| 
+(defruled |step2 correct q|
   (implies
     (and
       (word-01-p inp)
@@ -542,7 +542,7 @@
          (j (if (eql (nth n inp) #\1) 1 0))
          (y (replace-ones (nthcdr (1+ n) inp)))))
 
-(defruled |step2 correct 4| 
+(defruled |step2 correct 4|
   (implies
     (and
       (word-01-p inp)
@@ -579,7 +579,7 @@
   :induct (dec-induct n)
   :hints (
     ("subgoal *1/2" :use ((:instance |step2 correct q|
-                            (n (1- n))) 
+                            (n (1- n)))
                           (:instance simple-steps-cat
                               (scheme *scheme-bin2unary-ru*)
                               (m (- (val (take (1- n) inp))
@@ -589,7 +589,7 @@
                               (y (step2 inp (1- n)))
                               (z (step2 inp n)))))))
 
-#|          
+#|
 (step2 '(#\1 #\0 #\1) 0)
 (step2 '(#\1 #\0 #\1) 1)
 (step2 '(#\1 #\0 #\1) 2)
@@ -610,7 +610,7 @@
                    (repeat (val inp) #\|))))
   :enable step2)
 
-(defruled |step1 and step2 correct| 
+(defruled |step1 and step2 correct|
   (implies
     (word-01-p inp)
     (simple-steps
@@ -692,7 +692,7 @@
          (lw '())
          (rw (step3 inp (1+ n)))))
 
-(defruled |step3 correct a| 
+(defruled |step3 correct a|
   (implies
     (and
       (word-01-p inp)
@@ -704,7 +704,7 @@
       (step3 inp (1+ n))))
   :enable (simple-stepp |step3 applicable| |step3 substp|))
 
-(defruled |step3 correct b| 
+(defruled |step3 correct b|
   (implies
     (and
       (word-01-p inp)
@@ -764,6 +764,3 @@
   (not (applicable *scheme-bin2unary-ru* (repeat n #\|)))
   :enable (applicable repeat)
   :induct (dec-induct n))
-
-  
-

@@ -58,7 +58,7 @@
              (and (equal (take (len y) x) (list-fix y))
                   (prefixp (nthcdr (len y) x) z))))
   :enable (prefixp len |nthcdr n+1|)
-  :induct (cdr-cdr-induct x y)) 
+  :induct (cdr-cdr-induct x y))
 
 (defrule prefixp-transitive
   (implies
@@ -122,14 +122,14 @@
       (<= n (len x)))
     (wordp (take n x) alphabet))
   :enable take-redefinition
-  :induct (cdr-dec-induct x n)) 
+  :induct (cdr-dec-induct x n))
 
 (defrule wordp-nthcdr
   (implies
     (wordp x alphabet)
     (wordp (nthcdr n x) alphabet))
   :enable (wordp nthcdr)
-  :induct (cdr-dec-induct x n)) 
+  :induct (cdr-dec-induct x n))
 
 (defrule listpos-append-wordp
   (implies
@@ -258,7 +258,7 @@
        (true-listp (car x))
        (true-listp (cadr x))
        (booleanp (cddr x))))
- 
+
 (defund schemep (x)
   (declare (xargs :guard t))
   (or (null x)
