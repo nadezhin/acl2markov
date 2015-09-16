@@ -1,3 +1,5 @@
-*.FASL
-*.fasl
-*.lisp-temp
+*.cert
+*.cert.out
+*.lx64fsl
+*.port
+Makefile-tmp
