@@ -1,15 +1,11 @@
 (in-package "ACL2")
 (include-book "std/lists/top" :dir :system)
+(include-book "std/util/define" :dir :system)
 (include-book "std/util/defrule" :dir :system)
 (local (include-book "std/basic/inductions" :dir :system))
 
-;; This is a theroem from ACL 7.1 which is absent from current distribution of acl2s
-(defthm cdr-of-append-when-consp
-; We enable the version that requires consp, because it's less likely we want
-; to unconditionally open-up (cdr (append ...)) unless we know ... is a consp.
-    (implies (consp x)
-             (equal (cdr (append x y))
-                    (append (cdr x) y))))
+(include-book "tools/with-arith5-help" :dir :system)
+(local (acl2::allow-arith5-help))
 
 (defrule |sublistp when listpos|
   (implies (listpos x y) (sublistp x y)))
@@ -94,6 +90,15 @@
   (implies (wordp x alphabet) (true-listp x))
   :enable wordp)
 
+(defrule |wordp monotone|
+  (implies (and (wordp x alphabet0)
+                (subsetp alphabet0 alphabet)
+                (true-listp alphabet))
+           (wordp x alphabet))
+  :enable (wordp)
+  :induct (cdr-induct x))
+
+
 (defrule |nil is wordp|
   (implies
     (true-listp alphabet)
@@ -148,8 +153,8 @@
 
 (defrule wordp-nthcdr
   (implies
-    (wordp x alphabet)
-    (wordp (nthcdr n x) alphabet))
+   (wordp x alphabet)
+   (wordp (nthcdr n x) alphabet))
   :enable (wordp nthcdr)
   :induct (cdr-dec-induct x n))
 
@@ -192,13 +197,13 @@
          (alphabet (list a))
          (x (repeat n a))))
 
-(defund mks-> (l r)
-  (declare (xargs :guard (and (stringp l) (stringp r))))
-  (cons (coerce l 'list) (cons (coerce r 'list) nil)))
+(defund mk-> (l r)
+  (declare (xargs :guard (and (true-listp l) (true-listp r))))
+  (cons l (cons r nil)))
 
-(defund mks->. (l r)
-  (declare (xargs :guard (and (stringp l) (stringp r))))
-  (cons (coerce l 'list) (cons (coerce r 'list) t)))
+(defund mk->. (l r)
+  (declare (xargs :guard (and (true-listp l) (true-listp r))))
+  (cons l (cons r t)))
 
 (defund left-wing (x y)
   (declare (xargs :guard t))
@@ -436,14 +441,30 @@
            (simple-steps scheme 1 x y))
   :enable (simple-stepp apply-scheme simple-steps substp))
 
-(defrule simple-steps-cat
-  (implies
+(local
+ (defrule simple-steps-cat-aux
+   (implies
     (and
-      (natp m)
-      (natp n)
-      (simple-steps scheme m x y)
-      (simple-steps scheme n y z))
+     (natp m)
+     (natp n)
+     (simple-steps scheme m x y)
+     (simple-steps scheme n y z))
     (simple-steps scheme (+ m n) x z))
-  :enable simple-steps
-  :induct (simple-steps scheme m x y)
-  :rule-classes ())
+   :enable simple-steps
+   :induct (simple-steps scheme m x y)
+   :rule-classes ()))
+
+(with-arith5-help
+ (defrule simple-steps-cat
+   (implies
+    (and
+     (simple-steps scheme m x y)
+     (simple-steps scheme (- n m) y z)
+     (natp m)
+     (natp (- n m)))
+    (simple-steps scheme n x z))
+   :cases ((natp n))
+   :hints (
+     ("subgoal 2" :in-theory (enable simple-steps))
+     ("subgoal 1" :use (:instance simple-steps-cat-aux
+                         (n (- n m)))))))
